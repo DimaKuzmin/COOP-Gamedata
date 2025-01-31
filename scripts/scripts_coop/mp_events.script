@@ -1,0 +1,216 @@
+local M_SCRIPT_CUSTOM_EVENT = 2
+
+local EVENTS =
+{
+	INIT_EVENT = 1, -- for single actor
+	PLAYER_INIT_EVENT = 2,
+	DOOR_USE = 3,
+ 
+	DOOR_EVENT = 4,
+	PH_USE = 5, 
+	TRADE_CONFIG = 6,
+	
+	NPC_SOUND = 7,
+	--NPC_SYNC = 8, 
+	NPC_FRIEND = 9,
+
+	OBJECT_SOUND = 10,
+	SURGE = 11,
+	
+	SYNC_STORY_SYNC = 12,
+
+	SYNC_TASK_MANAGER = 15,
+	SYNC_TASK_UPDATE = 16, 
+
+	DIALOGS_RELOCATE = 17,
+	ITEM_RELOCATE = 18,
+
+	DOOR_ANIM = 19,
+	COOP_SOUND = 20,
+	DEBUG_LOGIC = 21, 
+	COOP_ACTOR_PRIOR = 22,
+	DOOR_ANIM_UPDATE = 23
+}
+
+
+--
+
+function gen_event(type)
+	local P = net_packet()
+	P:w_begin(M_SCRIPT_CUSTOM_EVENT)
+	P:w_u8(EVENTS[type])
+	return P
+end
+
+function send_to_server(P)
+	script_events.send_to_server(P)
+end
+
+function send_to_client(clientId, P)
+	script_events.send_to_client(clientId, P)
+end
+
+function send_broadcast(P)
+	script_events.send_broadcast(P)
+end
+
+--
+
+function cl_send_request_init_event()
+	send_to_server(gen_event('INIT_EVENT'))
+end
+
+function cl_send_request_player_init_event()
+	send_to_server(gen_event('PLAYER_INIT_EVENT'))
+end
+--
+
+function process_client_events()
+	while script_events.get_size_client_events() > 0 do
+	--	print_debug_msg("CL: start process event: " .. script_events.get_size_client_events())
+		local P = script_events.get_last_client_event()
+		local type = P:r_u8()
+		
+		if type == EVENTS.INIT_EVENT then
+			-- init event for single actor object
+
+		elseif type == EVENTS.PLAYER_INIT_EVENT then
+ 			mp_trade_sync.cl_process_all_trade_configs(P)
+ 			story_objects.ReadAllData(P)
+
+		elseif type == EVENTS.DOOR_EVENT then 
+			mp_doors_sync.cL_process_door_event(P)
+		elseif type == EVENTS.TRADE_CONFIG then
+			mp_trade_sync.cl_process_trade_config(P)
+
+		elseif type == EVENTS.NPC_SOUND then
+			sound_theme.cl_process_npc_sound(P)
+		elseif type == EVENTS.OBJECT_SOUND then 
+			sound_theme.cl_process_object_sound(P)
+		--SURGES
+		elseif type == EVENTS.SURGE then
+ 			surge_manager.get_surge_manager():clientRecive(P)
+		
+		
+		elseif type == EVENTS.SYNC_STORY_SYNC then 
+			story_objects.recive_client(P)		
+ 		elseif (type == EVENTS.SYNC_TASK_MANAGER) then
+			task_manager.client_give_task(P)
+		elseif (type == EVENTS.SYNC_TASK_UPDATE) then 
+			task_manager.client_update_task(P) 
+		elseif type == EVENTS.ITEM_RELOCATE then
+			mp_debug_coop.mp_give_response(P)
+
+		elseif type == EVENTS.DOOR_ANIM then 
+			bind_door_labx8.door_anim_sync(P);
+		elseif type == EVENTS.DOOR_ANIM_UPDATE then 
+			bind_door_labx8.door_update_sync(P);
+		elseif type == EVENTS.COOP_SOUND then 		
+			local par = {}
+ 			par[1] = P:r_stringZ()
+ 		  
+ 			local object = nil
+			local id = 0
+			if (P:r_u8()) then 
+				id = P:r_u32()
+				object = level.object_by_id(id)
+			end
+			
+			xr_effects.play_sound(db.get_actor(), object, par)
+		elseif type == EVENTS.DEBUG_LOGIC then 
+			local info = P:r_stringZ()
+			print_msg(info)
+
+	
+		end
+
+		script_events.pop_last_client_event()
+ 	end
+end
+  
+--
+
+function process_server_events()	
+	while script_events.get_size_server_events() > 0 do
+		-- printf_msg('SV: start process event')
+		local e = script_events.get_last_server_event()
+		local P = e.Packet
+		local type = P:r_u8()
+
+		if type == EVENTS.INIT_EVENT then
+			-- init event for single actor object
+			local packet = gen_event('INIT_EVENT')
+			send_to_client(e.SenderID, packet)
+
+		elseif type == EVENTS.PLAYER_INIT_EVENT then
+			local packet = gen_event('PLAYER_INIT_EVENT')
+			mp_trade_sync.sv_write_all_trade_configs(packet)
+ 			story_objects.SendAllData(packet)
+
+			send_to_client(e.SenderID, packet)
+		elseif type == EVENTS.DOOR_USE then
+			mp_doors_sync.sv_process_use_door_event(e.SenderID, P)
+		elseif type == EVENTS.PH_USE then 
+			mp_doors_sync.sv_process_use_phidle_event(e.SenderID, P)			
+		elseif type == EVENTS.NPC_FRIEND then
+			dialogs_mp_special.sv_FriendRecive(P)
+
+		-- SURGES
+		elseif type == EVENTS.SURGE then 
+  		 
+		elseif type == EVENTS.DIALOGS_RELOCATE then 
+			mp_debug_coop.relocate_item_mp_sv_recive(e.SenderID, P)
+
+		elseif type == EVENTS.ITEM_RELOCATE then
+			mp_debug_coop.mp_give_item(e.SenderID, P)
+		
+		elseif type == EVENTS.DOOR_ANIM then 
+			bind_door_labx8.door_anim_sync(P)
+			send_broadcast(P)
+		elseif type == EVENTS.COOP_ACTOR_PRIOR then 
+			local actor_player = P:r_stringZ()			
+			db.set_actor_priority(actor_player)
+		end
+
+		script_events.pop_last_server_event()
+		--printf_msg('SV: stop process event')
+	end
+end
+
+-- START 
+function G_setup_actor_coop(actor_name)
+	local Packet = gen_event('COOP_ACTOR_PRIOR')
+	Packet:w_stringZ(actor_name)
+	send_to_server(Packet)
+end
+
+function G_start_surge()
+	if (OnServer()) then 
+ 		surge_manager.start_surge()
+	end
+end
+
+function G_start_psi()
+ 
+end
+
+function G_start_fallout()
+ 
+end
+
+-- STOP 
+
+function G_stop_surge()
+	if (OnServer()) then 
+		local surge = surge_manager.get_surge_manager() 
+		surge:stop_surge()
+	end
+end
+
+function G_stop_psi()
+ 
+end
+
+function G_stop_fallout()
+ 
+end

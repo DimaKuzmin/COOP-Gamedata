@@ -1,0 +1,325 @@
+-----------------------------------------------------------------
+-- Author	: just_chiller 
+-- Description	: Адаптация синхронизации дверей из MoD под OMP
+-- Last Change	: 11.03.2021
+----------------------------------------------------------------- 
+--
+
+local EVENTS_DOOR =
+{
+    DOOR_OPEN = 1,
+    DOOR_CLOSE = 2,
+    DOOR_CLOSE_ACTION = 3, 
+	DOOR_UPDATE = 4
+}
+
+-- DOOR OPENING NO USE LOGIC
+class "action_door_client"
+function action_door_client:__init(obj, tips, no_force)
+    self.object = obj
+    self.string_tips = tips
+
+    -- defaults     
+    local ph_shell = self.object:get_physics_shell()
+    if not ph_shell then
+        print_msg("DOOR: ".. self.object:name() .." NOT INIT BECOSE IS NOT PH SHELL")
+        return
+    end
+
+    self.joint = ph_shell:get_joint_by_bone_name("door")
+ 
+	self.low_limits, self.hi_limits = 0, 0
+	self.low_limits, self.hi_limits	= self.joint:get_limits(self.low_limits, self.hi_limits, 0)
+ 
+    self.slider = false
+    self.no_force = no_force
+    self.block  = false
+end
+    
+function action_door_client:fastcall()
+
+	if self.block and self:is_closed() and self.object ~= nil then
+		self:close_action()
+		self.object:on_door_is_closed()
+		return true
+	end
+
+	return false
+end
+
+function action_door_client:open_fastcall()
+	if self:is_open() and self.object ~= nil then
+		local ph_obj = self.object:get_physics_object()
+		ph_obj:unset_door_ignore_dynamics() --'Игнорирование динамики на момент открытия/закрытия	
+		self.object:on_door_is_open()
+		return true
+	end
+	
+	return false
+end
+ 
+function action_door_client:close_action()
+	-- Закрыли до предела, будем блокировать
+	if self.no_force == true then
+		self.joint:set_max_force_and_velocity(0, 0, 0)
+	else
+		self.joint:set_max_force_and_velocity(10000, 1, 0)
+		
+		-- Фиксируем кость.
+		local ph_shell = self.object:get_physics_shell()
+		if ph_shell then
+			local ph_element = ph_shell:get_element_by_bone_name("door")
+			if not ph_element:is_fixed() then
+ 				ph_element:fix()
+			end	
+		end		
+
+	end
+	
+	local ph_obj = self.object:get_physics_object()
+	ph_obj:unset_door_ignore_dynamics() 
+	
+	--'Игнорирование динамики на момент открытия/закрытия
+	self.block = false
+
+	-- Отыграть звук когда дверь захлопнулась:
+	--if not self.soundless_block and self.st.snd_close_stop then
+    --    xr_sound.set_sound_play(self.object:id(), self.st.snd_close_stop)
+	--end
+end
+
+function action_door_client:open_door(disable_snd)
+	if not disable_snd then
+		--if self.st.snd_open_start then
+        --    xr_sound.set_sound_play(self.object:id(), self.st.snd_open_start)
+		--end
+	end
+
+	self.object:set_fastcall(self.open_fastcall,self)
+
+	--!!! Тут надо снять фиксацию кости
+	local ph_shell = self.object:get_physics_shell()
+	
+    if ph_shell then
+		local ph_element = ph_shell:get_element_by_bone_name("door")
+		if ph_element:is_fixed() then
+ 			ph_element:release_fixed()
+ 
+            local ph_obj = self.object:get_physics_object()
+			ph_obj:set_door_ignore_dynamics() --'Игнорирование динамики на момент открытия/закрытия
+		end	
+	end
+	 
+	
+	if self.no_force == true then
+		self.joint:set_max_force_and_velocity(0, 0, 0)
+	else
+		self.joint:set_max_force_and_velocity(2100, -3, 0)
+	end
+	
+	self.block = false
+
+	if self.string_tips then
+		self.object:set_tip_text(self.string_tips)
+	end
+end
+
+function action_door_client:is_closed()
+	local angle
+
+	if self.slider then
+		angle = -self.joint:get_axis_angle(0)
+	else
+		angle = self.joint:get_axis_angle(90)
+	end
+
+	if angle <= self.low_limits + 0.02 then
+		return true
+	end
+	
+	return false
+end
+
+function action_door_client:is_open()
+	local angle
+	if self.slider then
+		angle = -self.joint:get_axis_angle(0)
+	else
+		angle = self.joint:get_axis_angle(90)
+	end
+	 		
+	if angle >= self.hi_limits - 0.02 then
+ 		return true
+	end
+
+	return false
+end
+
+function action_door_client:close_door(disable_snd)
+
+	if not disable_snd then
+		--if self.st.snd_close_start then
+        --    xr_sound.set_sound_play(self.object:id(), self.st.snd_close_start)
+		--end
+	end
+
+	-- Ставим коллбек для отлова окончания закрытия двери (чтобы заблокировать ее и проиграть звук, если нужно):
+	self.object:set_fastcall(self.fastcall,self)
+
+ 	if self.no_force == true then
+		self.joint:set_max_force_and_velocity(0, 0, 0)
+	else
+		self.joint:set_max_force_and_velocity(200, 3, 0)
+	end
+
+	self.block = true -- Закрываем и блокируем	
+	self.soundless_block = disable_snd
+	
+	local ph_obj = self.object:get_physics_object()
+	ph_obj:set_door_ignore_dynamics() 
+	
+	--'Игнорирование динамики на момент открытия/закрытия
+	if (self.string_tips) then 
+        self.object:set_tip_text(self.string_tips)
+    end
+end
+
+-- EVENTS
+
+-- local doors_active = {}
+
+-- RECIVE От сервера на Открытие CL
+function cL_process_door_event(P)
+    if (OnServer()) then 
+		return 
+	end
+	
+	local game_id = P:r_u32()
+    local TYPE_EVENT = P:r_u8()
+
+
+	-- DEBUG TYPE
+	local string_type 	 = "nil"
+	if (TYPE_EVENT == EVENTS_DOOR.DOOR_OPEN) then 
+		string_type = "EVENTS_DOOR.DOOR_OPEN"
+	elseif (TYPE_EVENT == EVENTS_DOOR.DOOR_CLOSE) then 
+		string_type = "EVENTS_DOOR.DOOR_CLOSE"
+	elseif (TYPE_EVENT == EVENTS_DOOR.DOOR_CLOSE_ACTION) then 
+		string_type = "EVENTS_DOOR.DOOR_CLOSE_ACTION"
+	elseif (TYPE_EVENT == EVENTS_DOOR.DOOR_UPDATE) then 
+		string_type = "EVENTS_DOOR.DOOR_UPDATE"
+	end
+	-- print_msg("DOOR SV TYPE: " .. tostring (string_type) )
+
+	-- DEBUG END
+
+	if (TYPE_EVENT == EVENTS_DOOR.DOOR_UPDATE) then 
+		TYPE_EVENT  = P:r_u8()
+ 	end
+ 	local tips = P:r_stringZ()
+	local forRce = false
+ 
+	--- print_msg("PROCESS ID: ".. tostring( game_id ) )
+	--- print_msg("TYPE ID: ".. tostring (TYPE_EVENT) )
+	--- print_msg("TIPS : ".. tips)
+	--- print_msg("Force: ".. tostring(force))
+ 
+	local door = action_door_client(level.object_by_id(game_id), tips, force)
+	if (door == nil) then 
+	    return
+	end
+	
+ 	if (TYPE_EVENT == EVENTS_DOOR.DOOR_OPEN) then 
+	     door:open_door(false)
+	elseif (TYPE_EVENT == EVENTS_DOOR.DOOR_CLOSE) then
+	     door:close_door()
+	elseif (TYPE_EVENT == EVENTS_DOOR.DOOR_CLOSE_ACTION) then 
+	   --  door:close_action()
+ 	end
+end
+
+-- SEND ON PROCESS SERVER (Ответ от сервера на открытие SV)
+function sv_process_action_logic(object, type, tips, no_force)
+	local packet = mp_events.gen_event('DOOR_EVENT')
+	packet:w_u32( object:id() )
+	packet:w_u8( EVENTS_DOOR[type] )
+	if (tips == nil) then 
+	   packet:w_stringZ("")
+	else 
+		packet:w_stringZ(tips)
+	end
+	mp_events.send_broadcast(packet)
+end
+ 
+ 
+-- SEND ON USE (Запрос от клиента на открытие CL)
+function send_use_door_event(door_id)
+	 print_msg("SEND USE DOOR: " .. door_id)
+     local packet = mp_events.gen_event('DOOR_USE')
+     packet:w_u32(door_id)
+     mp_events.send_to_server(packet)
+end
+
+-- Recive ON USE (Выбираем действие открытия SV)
+function sv_process_use_door_event(senderId, P)
+    local door_id = P:r_u32()
+
+	if (db.storage[door_id] ~= nil) then
+ 		local physic_door = db.storage[door_id].ph_door
+		if physic_door ~= nil then
+			local door_action = physic_door.door_action
+			if door_action ~= nil then			
+				local obj = level.get_object_by_client(senderId)
+				door_action:try_switch(obj)
+				-- sv_send_door_section(door_id, door_action.st.section)
+				-- TODO Отправлять действие
+			end
+		end
+	end
+end
+
+-- UPDATE REAL TIME DOOR
+function send_update_door(object, is_open)
+	local ID = object:id()
+	local TYPE_EVENT = EVENTS_DOOR['DOOR_UPDATE']
+	
+	-- EXP
+	local TYPE_EXP = EVENTS_DOOR['DOOR_CLOSE']
+	local tips = "closed"
+
+	if (is_open) then 
+		TYPE_EXP = EVENTS_DOOR['DOOR_OPEN']
+		tips = "opened"
+	end
+
+	local packet = mp_events.gen_event('DOOR_EVENT')
+	packet:w_u32(object:id())
+	packet:w_u8(TYPE_EVENT)
+	packet:w_u8(TYPE_EXP)
+	packet:w_stringZ(tips)
+  	mp_events.send_broadcast(packet)
+end
+  
+-- EVENTS PH IDLE
+
+function send_use_phidle_event(ph_object)
+    local packet = mp_events.gen_event('PH_USE')
+    packet:w_u16( ph_object:id() )
+    mp_events.send_to_server(packet)
+end
+
+function sv_process_use_phidle_event(senderID, P)   
+    local ObjectID = P:r_u16()
+	print_msg("PhysicID : " .. ObjectID)
+
+	if (db.storage[id] ~= nil) then 
+    	local phidle = db.storage[id].ph_idle
+    	if phidle ~= nil then
+    	    local actor_mp 	= level.get_object_by_client(senderID)
+    	    local SCHEME 	= phidle.action_idle
+    	    if (SCHEME) then 
+     	        SCHEME:try_switch(actor_mp)
+    	    end
+    	end
+	end
+end

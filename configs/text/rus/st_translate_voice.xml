@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<string_table>
+	<string id="ui_mm_players_voice_volume">
+		<text>Громкость игроков</text>
+	</string>
+	
+	<string id="ui_mm_recorder_volume">
+		<text>Громкость микрофона</text>
+	</string>
+	
+	<string id="ui_mm_recorder_agc">
+		<text>Корекция AGC</text>
+	</string>
+		
+	<string id="ui_mm_denoice">
+		<text>Корекция Шума(denoice)</text>
+	</string>
+	
+	<string id="ui_mm_voice_chat">
+		<text>Войс чат</text>
+	</string>
+	
+	<!-- KB VOICE-->
+		
+	<string id="kb_voice_chat">
+		<text>Войс Чат</text>
+	</string>
+		
+	<string id="kb_voice_distance">
+		<text>Дистанция Войса</text>
+	</string>
+		
+	<string id="kb_anim_mode">
+		<text>Режим анимации(Пока не работает)</text>
+	</string>
+		
+	<string id="kb_anim_mode_exit">
+		<text>Режим анимации(выход экстренный)</text>
+	</string>
+		
+	<string id="kb_cam_1">
+		<text>Камера FPS</text>
+	</string>
+		
+	<string id="kb_cam_2">
+		<text>Камера Свободная </text>
+	</string>
+	
+</string_table>

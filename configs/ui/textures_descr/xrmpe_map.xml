@@ -1,0 +1,7 @@
+<w>
+    <file name="ui\ui_actor_ingame">
+		<texture id="ui_ingame_radar_main_window" x="0" y="324" width="250" height="282" />
+		<texture id="ui_ingame_radar_compass_rus" x="278" y="345" width="246" height="246" />
+		<texture id="ui_ingame_radar_compass_eng" x="557" y="345" width="246" height="246" />
+	</file>
+</w>

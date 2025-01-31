@@ -1,0 +1,72 @@
+<window>
+	<rand_inv_box x="14" y="72" width="610" height="340">	
+		<btn_save_srv x="300" y="10" width="100" height="26" stretch="1">
+			<texture>ui_inGame2_inventory_button</texture>
+			<text font="letterica16" r="170" g="170" b="170" align="c">sv_btnsave</text>
+		</btn_save_srv>
+		
+		<btn_load_srv x="300" y="40" width="100" height="26" stretch="1">
+			<texture>ui_inGame2_inventory_button</texture>
+			<text font="letterica16" r="170" g="170" b="170" align="c">sv_btnload</text>
+		</btn_load_srv>
+		
+		<btn_add_sect x="300" y="100" width="100" height="26" stretch="1">
+			<texture>ui_inGame2_inventory_button</texture>
+			<text font="letterica16" r="170" g="170" b="170" align="c">sv_btn_add_sect</text>
+		</btn_add_sect>
+		
+		<btn_add_item x="300" y="125" width="100" height="26" stretch="1">
+			<texture>ui_inGame2_inventory_button</texture>
+			<text font="letterica16" r="170" g="170" b="170" align="c">sv_btn_add_item</text>
+		</btn_add_item>
+		
+		<btn_upd_list x="300" y="270" width="100" height="26" stretch="1">
+			<texture>ui_inGame2_inventory_button</texture>
+			<text font="letterica16" r="170" g="170" b="170" align="c">sv_btn_upd</text>
+		</btn_upd_list>
+
+		
+		<!-- BUTTONS END-->
+ 				
+		<editbox_items_sect x="300" y="75" width="100" height="25">
+			<text x="3" font="letterica16" vert_align="c"/>
+			<texture>ui_inGame2_edit_box_1</texture>
+		</editbox_items_sect>
+ 
+		<!--editbox_items_count x="300" y="125" width="100" height="25">
+			<text x="3" font="letterica16" vert_align="c"/>
+			<texture>ui_inGame2_edit_box_1</texture>
+		</editbox_items_count-->
+		 
+		<editbox_items_prefix x="300" y="245" width="100" height="25">
+			<text x="3" font="letterica16" vert_align="c"/>
+			<texture>ui_inGame2_edit_box_1</texture>
+		</editbox_items_prefix>
+				
+		<!-- TEXT BOXES AND Window For INI FILE (CONFIGURATION)-->
+		
+		<!--text_wnd x="18" y="6" width="290" height="290">	
+			<text x="3" font="letterica16" />
+ 		</text_wnd-->
+		
+		<text_listbox x="18" y="6" width="275" height="290" item_height="25" always_show_scroll="1" can_select="1">
+			<font font="letterica16"/>
+		</text_listbox>
+		
+		<text_wnd_static x="18" y="6" width="275" height="290" stretch="1">
+			<texture>ui_inGame2_pda_buttons_background</texture>
+		</text_wnd_static>
+		
+		<!-- ALL GAME ITEMS BOXES -->
+		
+		<list_box_items x="410" y="6" width="180" height="290" item_height="18" always_show_scroll="1" can_select="1">
+			<font font="letterica16"/>
+ 		</list_box_items>
+		
+		<list_box_static x="410" y="6" width="180" height="290" stretch="1">
+			<texture>ui_inGame2_pda_buttons_background</texture>
+		</list_box_static>
+		
+		
+	</rand_inv_box>
+</window>

@@ -1,0 +1,12 @@
+[logic]
+active = ph_idle@close
+
+[ph_idle@open]
+nonscript_usable = true
+tips = actor_inventory_box_use
+on_info = {!actor_community(csky)} ph_idle@close
+
+[ph_idle@close]
+tips = jup_b202_treasures_closed
+nonscript_usable = false
+on_info = {=actor_community(csky)} ph_idle@open

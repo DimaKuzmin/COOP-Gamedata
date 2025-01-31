@@ -1,0 +1,21 @@
+<window>
+	<minimap>	
+		<level_frame x="5" y="5" width="149" height="149"/>
+		
+		<background x="5" y="5" width="150" height="150" stretch="1"> 
+			<texture>ui_ingame_radar_main_window</texture>
+		</background>
+		
+		<compass x="75" y="75" width="123" height="123" alignment="c" heading="1" stretch="1">
+			<texture>ui_ingame_radar_compass_rus</texture>
+		</compass>
+		 
+	    <clock_wnd x="16" y="99999" width="60" height="32">
+	        <!--text x="10" y="0" font="zurich16" align="l" vert_align="c"/-->
+	    </clock_wnd>		
+				
+		<center x="119" y="99999" width="8" height="100" stretch="1"> 
+			<!--texture>ui_ingame_minimap_player_pointer</texture-->
+		</center>
+	</minimap>
+</window>

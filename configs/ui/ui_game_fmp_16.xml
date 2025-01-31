@@ -1,0 +1,15 @@
+<w>
+    <global width="1024" height="768"></global>
+	
+	<stats x="800" y="10" width="200" height="100" stretch="1">
+		<text font="letterica16" align="l" color="white" complex_mode="1" />
+	</stats>
+	
+	<actor_state x="800" y="10" width="200" height="100" stretch="1">
+		<text font="letterica16" align="l" color="white" complex_mode="1" />
+	</actor_state>
+	 
+	<text_background x="800" y="0" width="250" height="350" stretch="1"> 
+		<texture>ui_inGame2_gamefmp_background</texture>
+	</text_background>
+</w>

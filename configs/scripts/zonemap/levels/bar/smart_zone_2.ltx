@@ -1,0 +1,16 @@
+[smart_terrain] ; База Посещающих
+squad_id = 2
+max_population = 2
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_2bar_mp
+spawn_num = 1
+
+[exclusive]
+ bar_smart_zone_2_mechanic   = zonemap\levels\bar\exclusive\smart_zone_2_mechanic.ltx

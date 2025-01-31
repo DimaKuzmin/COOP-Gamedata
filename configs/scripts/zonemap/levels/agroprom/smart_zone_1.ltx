@@ -1,0 +1,18 @@
+;agroprom_(ltx)
+[smart_terrain] ; База военых 
+squad_id = 31
+max_population = 3
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_1agr_mp
+spawn_num = 1
+
+[exclusive]
+agroprom_smart_zone_1_trader = zonemap\levels\agroprom\exclusive\smart_zone_1_trader.ltx
+agroprom_smart_zone_1_mechanic = zonemap\levels\agroprom\exclusive\smart_zone_1_mechanic.ltx

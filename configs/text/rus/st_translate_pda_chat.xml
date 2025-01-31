@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<string_table>
+	<string id="st_chat_send_msg">
+		<text>Отправить</text>
+	</string>
+	
+	<string id="st_anonimous_mode">
+		<text>Анонимно</text>
+	</string>
+	
+	<string id="st_chat_mode">
+		<text>Сменить чат</text>
+	</string>
+	
+	<string id="pda_btn_mp_chat">
+		<text>Чат игроков</text>
+	</string>
+	
+	<string id="st_drop_for_mp">
+		<text>Передать игроку.</text>
+	</string>
+</string_table>

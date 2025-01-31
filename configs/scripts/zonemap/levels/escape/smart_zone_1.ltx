@@ -1,0 +1,17 @@
+[smart_terrain] ; База Сталкеров (Дервервня)
+squad_id = 1
+max_population = 6
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_1esc_mp
+spawn_num = 1
+
+[exclusive]
+escape_smart_zone_1_trader 		= zonemap\levels\escape\exclusive\smart_zone_1_trader.ltx 
+escape_smart_zone_1_mechanic    = zonemap\levels\escape\exclusive\smart_zone_1_mechanic.ltx

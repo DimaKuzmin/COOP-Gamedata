@@ -1,0 +1,16 @@
+[smart_terrain] ; База Сталкеров 
+squad_id = 1
+max_population = 2
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_1bar_mp
+spawn_num = 1
+
+[exclusive]
+bar_smart_zone_1_barmen     = zonemap\levels\bar\exclusive\smart_zone_1_trader.ltx

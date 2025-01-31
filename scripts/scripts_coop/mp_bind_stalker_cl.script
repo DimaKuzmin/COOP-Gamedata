@@ -1,0 +1,162 @@
+
+local cl_traders_configs = 
+{
+	-- format:
+    -- [id] = cfg
+} 
+
+function trader_init(npc_id, config)
+ 
+
+	cl_traders_configs[npc_id] = config 
+	
+	--print_msg("Add npcID: "..npc_id .. ", TradeCFG: " .. config)
+	
+	--[[
+	local npc = level.object_by_id(npc_id)
+	
+
+	if npc ~= nil then
+		trade_manager.trade_init(npc, config)
+	else
+		printf_msg(
+			'Unknown error. NPC ID:'..tostring(npc_id)
+				..' Config:'..tostring(config)
+		)
+	end
+	]]
+	
+end
+
+
+ 
+----------------------------------------------------------------------------------------------------------------------
+class "cl_stalker_binder" (object_binder)
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:__init (obj) super(obj)
+	self.xr_meet_enable = true
+	self.last_trade_config = nil
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:net_spawn(data)
+	if object_binder.net_spawn(self,data) == false then
+		return false	
+	end
+	db.add_obj(self.object)
+	sound_theme.init_npc_sound(self.object)
+	self.object:set_callback(callback.use_object, self.use_callback, self)
+	self.object:set_callback(callback.hit, self.hit_callback, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:net_destroy()
+	object_binder.net_destroy(self)
+
+	xr_sound.stop_sounds_by_id(self.object:id())
+	self.object:set_callback(callback.use_object, nil)
+	self.object:set_callback(callback.hit, nil)
+	self.object:set_callback(callback.death, nil)
+	db.del_obj(self.object)
+	db.storage[self.object:id()] = nil
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function cl_stalker_binder:reinit()
+	object_binder.reinit(self)
+	db.storage[self.object:id()] = {  followers = {} }
+	self.object:set_callback(callback.use_object, self.use_callback, self)
+	self.object:set_callback(callback.hit, self.hit_callback, self)
+	self.object:set_callback(callback.death, self.death_callback, self)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+function ActivateDialogNPC_CL(packet)
+	 
+end
+
+function cl_stalker_binder:update(delta)
+	object_binder.update(self, delta)
+	xr_sound.update(self.object:id())
+	
+	local object = self.object
+	local is_alive = object:alive()
+	
+	if is_alive and db.get_actor() ~= nil then
+		--' Апдейт юзабилити персонажа
+		self:update_usability(object)
+		self:UpdateSpotSpecialNPC()
+	end
+
+    if is_alive then
+		
+		local tradecfg = cl_traders_configs[self.object:id()]
+		
+		if (tradecfg ~= self.last_trade_config) then 
+			--print_msg("Init Trade: " .. self.object:id() .. ", cfg=" .. tradecfg)
+			trade_manager.trade_init( self.object, tradecfg )
+			self.last_trade_config = tradecfg
+		end
+	
+        trade_manager.update(object)
+    end
+end
+
+
+function cl_stalker_binder:update_usability()
+	local object = self.object
+	self:check_squad_meet()
+ 
+ 	-- if db.get_actor() ~= nil and object:relation(db.get_actor()) ~= game_object.enemy and self.xr_meet_enable then
+	-- 	object:enable_talk()
+	-- else
+	-- 	object:disable_talk()
+	-- end
+end
+
+--------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:use_callback(obj)	
+
+end
+
+function cl_stalker_binder:check_squad_meet()
+	if (db.storage[self.object:id()].squad_name ~= nil) then 
+		self.xr_meet_enable = utils.cfg_get_bool(sim_board.squad_ltx, db.storage[self.object:id()].squad_name, "meet_enable", self, false, true)
+	end
+end
+
+function cl_stalker_binder:UpdateSpotSpecialNPC()
+	local spot = db.storage[self.object:id()].map_spot
+	
+	if (spot ~= nil and spot ~= "spot_null" and self.spot_setuped == nil) then
+		level.map_add_object_spot(self.object:id(), spot, "")
+		self.spot_setuped = true
+	end	
+end
+
+function cl_stalker_binder:hit_callback(obj, amount, local_direction, who, bone_index)
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.set_best_weapon(amount)
+	end
+end
+
+function cl_stalker_binder:death_callback(victim, who)
+	if db.mp_actor and who:id() == db.mp_actor:id() then
+		xr_statistic.inc_killed_stalkers_counter()
+		xr_statistic.set_best_monster(self.object)
+	end
+end
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:save(packet)
+	object_binder.save(self, packet)
+
+end
+----------------------------------------------------------------------------------------------------------------------
+function cl_stalker_binder:load(reader)
+	object_binder.load(self, reader)
+end

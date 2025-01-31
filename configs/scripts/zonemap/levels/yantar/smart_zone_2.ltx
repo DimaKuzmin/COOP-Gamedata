@@ -1,0 +1,18 @@
+[smart_terrain] ; База Посещающих
+squad_id = 2
+max_population = 4
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_2yantar_mp
+spawn_num = 1
+
+[exclusive]
+yantar_smart_zone_2_trader   = zonemap\levels\yantar\exclusive\smart_zone_2_trader.ltx
+yantar_smart_zone_2_mechanic = zonemap\levels\yantar\exclusive\smart_zone_2_mechanic.ltx
+ 

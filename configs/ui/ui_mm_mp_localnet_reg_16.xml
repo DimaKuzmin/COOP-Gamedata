@@ -1,0 +1,98 @@
+<w>
+ 	<background x="0" y="0" width="1024" height="768">
+		<auto_static x="0" y="0" width="1024" height="430">
+		  <texture x="0" y="0" width="1024" height="430">ui\ui_mm_window_back_crop</texture>
+		</auto_static>
+
+		<auto_static x="85" y="0" width="854" height="768" stretch="1">
+		  <texture>ui_inGame2_back_01</texture>
+		</auto_static>
+		
+		<auto_static x="0" y="0" width="85" height="768" stretch="1">
+		  <texture>ui_inGame2_back_01w10_l</texture>
+		</auto_static>
+		
+		<auto_static x="939" y="0" width="85" height="768" stretch="1">
+		  <texture>ui_inGame2_back_01w10_r</texture>
+		</auto_static>
+
+		<auto_static x="314" y="425" width="107" height="256" stretch="1">
+		  <texture x="1" y="1" width="126" height="254">ui\ui_mm_rug02</texture>
+		</auto_static>
+	
+	</background>
+
+	<register_page x="419" y="288" width="394" height="363">
+		
+		<auto_static x="-95" y="-50" width="394" height="363" stretch="1">
+			<texture>ui_menu_options_dlg</texture>
+		</auto_static>
+		
+		<cap_header_register x="40" y="0" width="160" height="30">
+	        <text font="graffiti32" align="c" r="220" g="220" b="220">ui_st_mp_local_network_register_page</text>
+	    </cap_header_register>
+		
+		<cap_login x="-50" y="55" width="60" height="30">
+	        <text font="letterica18" align="r" vert_align="c" r="170" g="170" b="170">ui_st_mp_login_net</text>
+	    </cap_login>
+
+	    <edit_login x="20" y="55" width="194" height="30" max_symb_count="21">
+	        <text x="6" width="239" font="letterica16" complex_mode="0" vert_align="c" r="200" g="200" b="200"/>
+	        <texture>ui_inGame2_edit_box_2</texture>
+	    </edit_login>
+		
+		<cap_password x="-50" y="90" width="60" height="30">
+	        <text font="letterica18" align="r" vert_align="c" r="170" g="170" b="170">ui_st_mp_password</text>
+	    </cap_password>
+		
+		<edit_password x="20" y="90" width="194" height="30" max_symb_count="21" password="1">
+	        <text x="6" width="239" font="letterica16" complex_mode="0" vert_align="c" r="200" g="200" b="200"/>
+	        <texture>ui_inGame2_edit_box_2</texture>
+	    </edit_password>
+			
+		<button_register x="-50" y="236" width="90" height="48">
+			<text font="graffiti19" align="c">ui_st_mp_register</text>
+			<texture>ui_button_main02</texture>
+			<text_color>
+				<e r="227" g="199" b="178"/> <t r="180" g="153" b="155"/> <d r="106" g="95" b="91"/> <h r="0" g="0" b="0"/>
+			</text_color>
+		</button_register>
+		
+		<button_reqvest_data x="55" y="236" width="150" height="48">
+			<text font="graffiti19" align="c">ui_st_mp_reqvest_info</text>
+			<texture>ui_button_main02</texture>
+			<text_color>
+				<e r="227" g="199" b="178"/> <t r="180" g="153" b="155"/> <d r="106" g="95" b="91"/> <h r="0" g="0" b="0"/>
+			</text_color>
+		</button_reqvest_data>
+	
+		<button_cancel x="220" y="236" width="90" height="48">
+			<text font="graffiti19" align="c">mm_mp_cancel</text>
+			<texture>ui_button_main02</texture>
+			<text_color>
+				<e r="227" g="199" b="178"/> <t r="180" g="153" b="155"/> <d r="106" g="95" b="91"/> <h r="0" g="0" b="0"/>
+			</text_color>
+		</button_cancel>
+		
+		
+		<!-- ВРЕМЕННО-->
+		<cap_ipserver x="-50" y="125" width="60" height="30">
+	        <text font="letterica18" align="r" vert_align="c" r="170" g="170" b="170">ui_st_mp_ipserver</text>
+	    </cap_ipserver>
+		
+		<edit_ip_server x="20" y="125" width="194" height="30" max_symb_count="21">
+	        <text x="6" width="239" font="letterica16" complex_mode="0" vert_align="c" r="200" g="200" b="200"/>
+	        <texture>ui_inGame2_edit_box_2</texture>
+	    </edit_ip_server>
+		
+		<cap_port x="-50" y="160" width="60" height="30">
+	        <text font="letterica18" align="r" vert_align="c" r="170" g="170" b="170">ui_st_mp_port</text>
+	    </cap_port>
+		
+		<edit_port x="20" y="160" width="194" height="30" max_symb_count="21">
+	        <text x="6" width="239" font="letterica16" complex_mode="0" vert_align="c" r="200" g="200" b="200"/>
+	        <texture>ui_inGame2_edit_box_2</texture>
+	    </edit_port>
+		
+	</register_page>
+</w>

@@ -1,0 +1,43 @@
+function is_actor(a,b)
+ 	if db.get_actor():id() == b:id() then
+		return b, a
+	else 
+		return a, b
+	end	
+end
+
+function has_actors_item(OBJECT_NAME)
+ 	--local has_item = nil
+	--for k, player in pairs(db.players) do
+	--	if (has_item == nil) then 
+	--		has_item = db.get_actor():object(OBJECT_NAME)
+	--	end
+	--end
+	-- return has_item 
+
+	-- Сделал пока Ток у локального
+	return db.get_actor():object(OBJECT_NAME)
+end
+
+function FriendSquad(a,b)
+	-- local actor, npc = is_actor(a,b)
+	
+	-- if (actor ~= nil and npc ~= nil) then
+		-- local p = mp_events.gen_event('NPC_FRIEND')
+		-- p:w_u32(actor:id())
+		-- p:w_u32(npc:id())
+		-- mp_events.send_to_server(p)	
+	-- end
+end
+
+function sv_FriendRecive(P)
+	local actor_id = P:r_u32()
+	local npc_id   = P:r_u32()
+	
+	local sq = get_object_squad(db.storage[npc_id])
+	
+	if (sq ~= nil) then 
+		sq:friend_move(actor_id)
+	end
+end
+

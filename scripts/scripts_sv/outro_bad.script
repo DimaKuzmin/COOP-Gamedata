@@ -1,0 +1,10 @@
+function main ()
+	give_info("pri_a28_actor_in_zone_stay")
+	give_info("kingpin_gained")
+	give_info("sim_duty_help_harder")
+ 	give_info("jup_a10_vano_agree_go_und")
+ 	give_info("jup_b218_monolith_hired")
+ 	give_info("jup_b218_soldier_hired")
+ 	give_info("pri_a28_strelok_dead")
+ 	give_info("pri_a28_koval_dead")
+end

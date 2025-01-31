@@ -1,0 +1,17 @@
+[smart_terrain] ; База Сталкеров (За переездом)
+squad_id = 4
+max_population = 4
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_stalkers
+
+[spawn_stalkers]
+spawn_squads = simulation_base_4esc_mp
+spawn_num = 1
+
+[exclusive]
+escape_smart_zone_4_trader 	  = zonemap\levels\escape\exclusive\smart_zone_4_trader.ltx 
+escape_smart_zone_4_mechanic  = zonemap\levels\escape\exclusive\smart_zone_4_mechanic.ltx

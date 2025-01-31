@@ -1,0 +1,115 @@
+
+function actor_init(npc)
+	npc:bind_object(actor_binder(npc))
+	printf_msg("bind single actor")
+end
+
+local cl_init_event_request_sended = false
+
+function reset_globals()
+	cl_init_event_request_sended = false
+end
+
+----------------------------------------------------------------------------------------------------------------------
+class "actor_binder" (object_binder)
+
+function actor_binder:__init (obj) super(obj)
+	self.surge_setuped    	= false
+	self.surge_manager 		= surge_manager.get_surge_manager()
+
+	if (OnServer()) then
+		self.level_weathers = level_weathers.get_weather_manager()
+	end
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:reinit()
+	object_binder.reinit(self)
+	local npc_id = self.object:id()
+	db.storage[npc_id] = { }
+	self.st = db.storage[npc_id]
+	self.st.pstor = nil
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:net_spawn(data)	
+	if object_binder.net_spawn(self,data) == false then
+		return false
+	end
+ 
+	if OnServer() then
+		db.add_actor(self.object)
+		self.level_weathers:reset()
+	end
+
+	return true
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+function actor_binder:net_destroy()
+	object_binder.net_destroy(self)	
+	if OnServer() then
+		db.del_actor(self.object)
+	else
+		db.del_obj(self.object)
+	end
+end
+
+----------------------------------------------------------------------------------------------------------------------
+
+local last_checked = 0
+local surge_time =  0
+local psi_time = 0
+local fallout_time = 0
+
+local surge_calls = 0
+local psi_calls = 0
+local fallout_calls = 0
+
+function actor_binder:update(delta)
+	object_binder.update(self, delta)
+ 
+	if OnServer() then
+		--' обработка серверных эвентов
+		mp_events.process_server_events()
+		self.level_weathers:update()
+	end
+	
+	local g_time = game.time() / 10	
+	if (last_checked < g_time) then 
+		if not (self.surge_setuped) then
+			self.surge_manager:initialize()
+			self.surge_setuped = true
+		else 
+			self.surge_manager:update()
+		end
+		last_checked = 1000 + g_time
+	end 
+ 
+ 
+	if OnClient() then
+		--' обработка клиентских эвентов
+		mp_events.process_client_events()
+		--' запросить стартовый эвент
+		if not cl_init_event_request_sended then
+			mp_events.cl_send_request_init_event()
+			cl_init_event_request_sended = true
+		end
+	end
+
+	--' Апдейт саундменеджера
+	xr_sound.update(self.object:id())
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:save(packet)
+	--xr_logic.pstor_save_all(self.object, packet)
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:load(reader)
+	--xr_logic.pstor_load_all(self.object, packet)
+end

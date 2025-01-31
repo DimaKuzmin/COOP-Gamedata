@@ -1,0 +1,19 @@
+;darkvalley_(ltx)
+[smart_terrain]
+squad_id = 430
+max_population = 6
+arrive_dist = 15
+respawn_params = respawn@respawn_squads
+
+
+[respawn@respawn_squads]
+spawn_army
+
+[spawn_army]
+spawn_squads = simulation_base_3dval_mp
+spawn_num = 2, 2
+
+[exclusive]
+darkvalley_smart_zone_3_trader          = zonemap\levels\darkvalley\exclusive\smart_zone_3_trader.ltx
+darkvalley_smart_zone_3_trade_food      = zonemap\levels\darkvalley\exclusive\smart_zone_3_trader_food.ltx
+darkvalley_smart_zone_3_mechanic        = zonemap\levels\darkvalley\exclusive\smart_zone_3_mechanic.ltx

@@ -1,0 +1,110 @@
+class "localnet_register" (CUIScriptWnd)
+function localnet_register:__init() super()
+   self:InitControls()
+   self:InitCallbacks()
+end
+
+function localnet_register:InitControls()
+	local xml = CScriptXmlInit()
+	xml:ParseFile("ui_mm_mp_localnet_reg.xml")
+	self:SetWndRect(Frect():set(0,0,1920,1080))
+
+	self:Enable(true)
+	xml:InitStatic("background", self)
+	
+	
+	self.register_page = CUIWindow()
+	xml:InitWindow("register_page", 0, self.register_page)
+	self.register_page:SetAutoDelete(true)
+	self:AttachChild(self.register_page)
+ 	
+	self.cap_header_register = xml:InitTextWnd("register_page:cap_header_register", self.register_page)
+
+	local btn = nil
+	btn = xml:Init3tButton("register_page:button_register", self.register_page)
+	self:Register(btn, "btn_register")
+    self.btn_register = btn
+	 		 
+	btn = xml:Init3tButton("register_page:button_reqvest_data", self.register_page)
+	self:Register(btn, "btn_reqvest_data")
+    self.btn_reqvest_data = btn
+
+	btn = xml:Init3tButton("register_page:button_cancel", self.register_page)
+	self:Register(btn, "btn_cancel")
+    self.btn_cancel = btn
+
+	xml:InitTextWnd("register_page:cap_login", self.register_page)
+	self.login = xml:InitEditBox("register_page:edit_login", self.register_page)
+	self:Register(self.login, "edit_nickname")
+	
+	xml:InitTextWnd("register_page:cap_password", self.register_page)
+ 	self.pass = xml:InitEditBox("register_page:edit_password", self.register_page)
+	self:Register(self.pass, "lp_edit_password")
+	
+	-- ВРЕМЕННО ПОТОМ БУДЕТ ПОСТОЯНЫМ
+		
+	xml:InitTextWnd("register_page:cap_ipserver", self.register_page)
+ 	self.ip = xml:InitEditBox("register_page:edit_ip_server", self.register_page)
+	self:Register(self.ip, "lp_edit_ip_server")
+	
+	xml:InitTextWnd("register_page:cap_port", self.register_page)
+ 	self.port = xml:InitEditBox("register_page:edit_port", self.register_page)
+	self:Register(self.port, "lp_edit_port")
+	
+end
+
+
+function localnet_register:InitCallbacks()
+	self:AddCallback("btn_register", ui_events.BUTTON_CLICKED, self.OnBtnRegister, self)
+	self:AddCallback("btn_reqvest_data", ui_events.BUTTON_CLICKED, self.OnBtnReqvest, self)
+	
+	self:AddCallback("btn_cancel", ui_events.BUTTON_CLICKED, self.OnBtnCancel, self)
+end
+
+function localnet_register:OnBtnRegister()
+	local login = self.login:GetText()
+	local pass = self.pass:GetText()
+	local ip = self.ip:GetText()
+	local port = self.port:GetText()
+
+		
+	accounts.RegisterAccount(login, pass, ip, port)
+	
+	local cmd = "start client("..ip.."/port="..port..")" 	
+	get_console():execute(cmd)
+
+end
+
+
+function localnet_register:OnBtnReqvest()
+	local ip = self.ip:GetText()
+	local port = self.port:GetText()
+	
+	accounts.RegisterReqvestInfo()
+	
+	local cmd = "start client("..ip.."/port="..port..")" 	
+	get_console():execute(cmd)
+end
+
+
+
+function localnet_register:OnBtnCancel()
+	self:HideDialog()
+	self.owner:ShowDialog(true)
+	self.owner:Show(true)
+end
+
+function localnet_register:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+
+	local bind = dik_to_bind(dik)
+	local console = get_console()
+
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_ESCAPE then
+			self:OnBtnCancel()
+		end
+	end
+	
+	return true
+end

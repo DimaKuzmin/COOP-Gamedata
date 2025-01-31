@@ -1,0 +1,49 @@
+local ini_teleleport = ini_file("alife\\level_teleports.ltx")
+
+function travel_to_zaton(first_speaker, second_speaker)
+    printf_msg("travel_to_zaton")
+    
+    if (ini_teleleport ~= nil and ini_teleleport:section_exist("level_zaton")) then 
+        level.add_pp_effector ("teleport.ppe", 2006, false)
+
+        local packet = mp_events.gen_event('TELEPORT')
+        local vec = ini_teleleport:r_vector("level_zaton", "pos")
+        packet:w_u32(db.get_actor():id())
+        packet:w_vec3(vec)
+        packet:w_u32(2500)
+        printf_msg("Send To Server")
+        mp_events.send_to_server(packet)
+    end
+end
+
+function travel_to_pripyat(first_speaker, second_speaker)
+    printf_msg("travel_to_pripyat")
+    
+    if (ini_teleleport ~= nil and ini_teleleport:section_exist("level_pripyat")) then 
+        level.add_pp_effector ("teleport.ppe", 2006, false)
+        
+        local packet = mp_events.gen_event('TELEPORT')
+        local vec = ini_teleleport:r_vector("level_pripyat", "pos")
+        packet:w_u32(db.get_actor():id())
+        packet:w_vec3(vec)
+        packet:w_u32(7500)
+        printf_msg("Send To Server")
+        mp_events.send_to_server(packet)
+    end
+end
+
+function travel_to_jupiter(first_speaker, second_speaker)
+    printf_msg("travel_to_jupiter")
+    
+    if (ini_teleleport ~= nil and ini_teleleport:section_exist("level_jupiter")) then 
+        level.add_pp_effector ("teleport.ppe", 2006, false)
+        
+        local packet = mp_events.gen_event('TELEPORT')
+        local vec = ini_teleleport:r_vector("level_jupiter", "pos")
+        packet:w_u32(db.get_actor():id())
+        packet:w_vec3(vec)
+        packet:w_u32(2500)
+        printf_msg("Send To Server")
+        mp_events.send_to_server(packet)
+    end
+end

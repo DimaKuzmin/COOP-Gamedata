@@ -1,0 +1,4 @@
+function main ()
+	give_info("zat_b38_underground_door_open")
+	give_info("zat_b38_disappearance_stalkers_find_to_be_missing_hunter_give")
+end

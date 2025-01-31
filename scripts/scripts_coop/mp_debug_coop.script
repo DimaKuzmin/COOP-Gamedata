@@ -1,0 +1,251 @@
+
+-- DO NOT REMOVE CALL FROM ENGINE 
+function spawn_squad(squad_name, smart_name)
+    local smart = smart_terrain.smart_terrains_by_name[smart_name]
+    sim_board.create_squad(smart, squad_name)
+end
+
+function smart_list()
+    for k,v in pairs (smart_terrain.smart_terrains_by_name) do 
+        
+        local name = k
+        store_table(v)
+        
+        local packet = mp_events.gen_event('DEBUG_LOGIC')
+        packet:w_stringZ(name);
+        mp_events.send_broadcast(packet)
+
+    end
+end
+
+function ActiveLogicHas(npc_id)
+  --  print_msg("TRY GET NPC: " .. npc_id)
+
+    local storage = db.storage[npc_id]
+   
+    if (storage ~= nil) then      
+        local obj = db.storage[npc_id].object
+        local section_logic = utils.to_str(storage.section_logic)
+        local active_section = utils.to_str(storage.active_section)
+
+        --if (section_logic == "logic") then  -- active_section ~= "nil" and
+            return true
+        --end
+    end
+
+ --  print_msg("GET NPC: " .. npc_id .. " : Set to FALSE")
+    return false;
+end
+
+function ActiveLogic(npc_id)
+--	print_msg("TRY GET NPC: " .. npc_id)
+    
+    local storage = db.storage[npc_id]
+   
+    if (storage ~= nil) then      
+        --local obj = db.storage[npc_id].object
+        
+        --local job_ini = utils.to_str(storage.job_ini)
+        --local filename = utils.to_str(storage.ini_filename)
+
+        local section_logic = utils.to_str(storage.section_logic)
+        local active_section = utils.to_str(storage.active_section)
+        -- local gulag_name = utils.to_str(storage.gulag_name)
+
+        return "Section["..section_logic.."], Active["..active_section.."]"  --, Gulag["..gulag_name.."]" 
+    else 
+        local object = level.object_by_id(npc_id)
+
+        return "("..object:name()..") not finded in storage" 
+    end
+end
+
+-- function GiveTasksClient(task_id, title, descr, object_id)
+--    local TM = task_manager.get_task_manager()
+--    if (TM ~= nil) then 
+--		TM:give_task(task_id)
+--        TM.task_info[task_id]:update_from_server(title, descr, object_id)
+--    end
+--
+--    return 
+-- end
+
+-- CALL FROM MP EVENTS
+
+function relocate_item_mp_sv_recive(SenderID, packet)
+	
+	local actor = level.get_object_by_client(SenderID)
+	local npc = packet:r_u32()
+	local section = packet:r_stringZ()
+	local type = packet:r_stringZ()
+	local amount = packet:r_u32()
+	dialogs.relocate_item_single(actor, npc, section, type, amount)
+	
+end
+
+
+function mp_relocate_item(npc, section, amount)
+    if (npc ~= nil and db.get_actor() ~= nil) then 
+        local packet = mp_events.gen_event('DIALOGS_RELOCATE')
+        packet:w_u8(2) -- TYPE EVENT
+         
+        packet:w_u32(db.get_actor():id())
+        packet:w_u32(npc:id())
+
+        packet:w_stringZ(section)
+        packet:w_u32(amount)
+        mp_events.send_to_server(packet)
+
+        --news_manager.relocate_item(db.get_actor(), "in", section, amount)
+    end
+end
+
+function mp_relocate_item2(section, amount, type_item)
+    local packet = mp_events.gen_event('DIALOGS_RELOCATE')
+    packet:w_u8(1) -- TYPE EVENT
+    packet:w_u32(db.get_actor():id())
+    packet:w_stringZ(section)
+    packet:w_stringZ(type_item)
+    packet:w_u32(amount)
+    mp_events.send_to_server(packet)
+
+    --news_manager.relocate_item(db.get_actor(), type_item, section, amount)
+end
+
+
+function mp_give_items(mp_actor, npc, section, amount)
+    local v = 0
+	local any_gived = false
+
+	--' Трансферить нужно только квестовые предметы.
+	if amount == 0 then
+		amount = 1
+	end
+
+	local function transfer_object_item(temp, item)
+		--printf("item:section(): [%s]", item:section())
+		if (item:section() == section and v ~= 0) then
+			npc:transfer_item(item, mp_actor)
+			v = v - 1
+            any_gived = true
+		end
+	end
+
+	if amount > 1 then
+		v = amount
+		npc:iterate_inventory(transfer_object_item, nil)
+	else
+		if npc:object(section) ~= nil then
+			npc:transfer_item(npc:object(section), mp_actor)
+            any_gived = true
+		else
+			--[[alife():create(section,
+					mp_actor:position(),
+					mp_actor:level_vertex_id(),
+					mp_actor:game_vertex_id(),
+					mp_actor:id())
+            ]] 
+
+            mp.give_items_server(mp_actor:id(), section, amount)
+                
+            any_gived = true
+		end
+	end
+
+	if v ~= 0 then
+        mp.give_items_server(mp_actor:id(), section, v)
+        any_gived = true
+	end
+
+    return any_gived
+
+	--if death_manager.ammo_sections[section] == true then
+	--	local ltx = system_ini()
+	--	local box_size = ltx:r_s32(section, "box_size")
+	--	amount = amount * box_size
+	--end
+end
+
+function mp_give_response(Packet)
+    local server_confirm = Packet:r_u8()
+    local section = Packet:r_stringZ()
+    local amount  = Packet:r_u32()
+
+    if (server_confirm == 1) then 
+        news_manager.relocate_item(db.get_actor(), "in", section, amount)
+    else 
+		if db.get_actor():is_talking() then
+			db.get_actor():give_talk_message2("Server Not Confirm Operand", "", "ui_inGame2_Predmet_otdan", "iconed_answer_item")
+		else
+			db.get_actor():give_game_news("Server Not Confirm Operand", "",     "ui_inGame2_Predmet_otdan", 0, 3000)
+		end
+    end
+end
+
+function mp_give_item(SenderID, Packet)
+   
+    local TypeEvent = Packet:r_u8()
+    
+    if (TypeEvent == 1) then 
+        local actorID = Packet:r_u32() 
+        local mp_actor = db.players[actorID]
+        local item_section  = Packet:r_stringZ()
+        local section_inout = Packet:r_stringZ()
+
+        print_msg("Read Actor: ".. actorID .. " | ActorNULL: " .. tostring(mp_actor == nil) ..  " | item: ".. item_section .." | inout: " .. section_inout)
+
+       -- local actor_name = actor ~= nil and actor:name() or "no actor"
+        
+        local server_confirm = false;
+        if (mp_actor ~= nil) then 
+            --[[ alife():create(item_section,
+                mp_actor:position(),
+                mp_actor:level_vertex_id(),
+                mp_actor:game_vertex_id(),
+                mp_actor:id()
+            )   
+            ]] 
+            
+            mp.give_items_server(mp_actor:id(), item_section, 1)
+            server_confirm = true
+            print_msg("Server Confirm")
+        end
+        
+        local newP = mp_events.gen_event('ITEM_RELOCATE')
+        
+        if (server_confirm == true) then 
+            newP:w_u8(1)
+        else 
+            newP:w_u8(0)
+        end
+
+        newP:w_stringZ(item_section)
+        newP:w_u32(1)
+        mp_events.send_to_client(SenderID, newP)
+
+
+    elseif (TypeEvent == 2) then
+        local actor_ID = Packet:r_u32()
+
+        local mp_actor = db.players[actor_ID]
+        local npc      = db.storage[Packet:r_u32()] 
+        local section  = Packet:r_string()
+        local amount   = Packet:r_u32()
+
+        local server_confirm = mp_give_items(mp_actor, npc, section, amount)  
+ 
+        local newP = mp_events.gen_event('ITEM_RELOCATE')
+        
+        if (server_confirm == true) then 
+            newP:w_u8(1)
+        else 
+            newP:w_u8(0)
+        end
+
+        newP:w_stringZ(section)
+        newP:w_u32(amount)
+        mp_events.send_to_client(SenderID, newP)
+    end
+
+end
+

@@ -1,0 +1,63 @@
+[krovosos]
+jump_speed              = 6
+crouch_coef 			= 0.7 
+climb_coef				= 0.9
+  
+run_coef                = 1.5  
+run_back_coef			= 1.2
+run_strafe_coef			= 1.2
+
+walk_accel              = 20 
+
+walk_back_coef			= 2.15
+walk_strafe_coef		= 2.15
+
+sprint_koef			    = 2.5
+
+;; из движка
+
+;; ACTOR 
+; //Состояние Для бега и хотьбы вперед
+; Actor->m_fWalkAccel = 20;
+; Actor->m_fRunFactor = 2.0f;
+; Actor->m_fSprintFactor = 2.5f;
+
+; // Прыжки
+; Actor->m_fJumpSpeed = 6;
+
+; //Тоже самое только назад
+; Actor->m_fRunBackFactor  = 1.8f;
+; Actor->m_fWalkBackFactor = 1.2f;
+
+; // Боковые ускорения
+; Actor->m_fRun_StrafeFactor  = 1.8f;
+; Actor->m_fWalk_StrafeFactor = 1.2f;
+
+
+; // Вприсяди и на лестнеце
+; Actor->m_fCrouchFactor = 0.7f;
+; Actor->m_fClimbFactor = 0.9f;		
+
+
+[krovosos_data] 
+;Из Cfg Кровососа
+;----------------------------------------------------------------------------
+; Movement::Velocities & Acceleration
+;----------------------------------------------------------------------------
+; speed factors       	linear | angular_real | angular_path | min   |  max
+Velocity_Stand     		 = 0,      5.0,          5.0,         1,       1
+Velocity_RunFwdNormal    = 6.0,    5.0,          5.0,         0.5,     1
+Velocity_RunFwdDamaged   = 5.0,    5.0,          5.0,         0.5,     1
+Velocity_WalkFwdNormal   = 2.15,   5.0,          5.0,         0.2,     2.0
+Velocity_WalkFwdDamaged  = 1.4,    5.0,          5.0,         0.2,     2.0
+Velocity_Drag            = 1.5,    4.0,          4.0,         1,       1
+Velocity_Steal           = 0.7,    4.0,          4.0,         1,       1
+
+; Speed factors while invisible
+Velocity_Invisible_Linear   = 8.0
+Velocity_Invisible_Angular  = 5.0
+ 
+; acceleration
+Accel_Generic         = 1.5			;УДАЛЕНО !!!
+Accel_Calm            = 2.5
+Accel_Aggressive      = 20.0
